@@ -1,4 +1,7 @@
-﻿namespace nsam;
+﻿using SteamWebAPI2.Interfaces;
+using SteamWebAPI2.Utilities;
+
+namespace nsam;
 
 internal class Program
 {
@@ -9,10 +12,17 @@ internal class Program
         {
             Console.WriteLine("\nConsent failed.");
             System.Environment.Exit(1);
-        }
+        };
+
+        Console.WriteLine("\nI understand that this program is currently in development and there may exist glitches or bugs which mess up my Steam account. I will not use this program with my main Steam account. (y/n)");
+        if (Console.ReadLine() != "y")
+        {
+            Console.WriteLine("\nConsent failed.");
+            System.Environment.Exit(1);
+        };
     }
 
-    static void Main()
+    static async Task Main()
     {
         Console.WriteLine(" _        _______  _______  _______ ");
         Console.WriteLine("( (    /|(  ____ \\(  ___  )(       )");
@@ -23,12 +33,17 @@ internal class Program
         Console.WriteLine("| )  \\  |/\\____) || )   ( || )   ( |");
         Console.WriteLine("|/    )_)\\_______)|/     \\||/     \\|");
 
-        Console.WriteLine("\nPlease enter your Steam login name:");
-        var CurrentSteamUsername = Console.ReadLine();
-        Console.WriteLine("\nPlease enter your Steam password:");
-        var CurrentSteamPassword = Console.ReadLine();
-
         GetConsent();
         Console.WriteLine("\nConsented.");
+
+        Console.WriteLine("\nPlease enter your Steam API key:");
+        var CurrentSteamAPIKey = Console.ReadLine();
+
+        var WebInterfaceFactory = new SteamWebInterfaceFactory(CurrentSteamAPIKey);
+        var SteamInterface = WebInterfaceFactory.CreateSteamWebInterface<SteamUser>(new HttpClient());
+
+        var PlayerSummaryResponse = await SteamInterface.GetPlayerSummaryAsync(76561199083880215);
+        var PlayerSummaryData = PlayerSummaryResponse.Data.Nickname;
+        Console.WriteLine(PlayerSummaryData.ToString());
     }
 }
